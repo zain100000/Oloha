@@ -197,20 +197,9 @@ const sendPasswordResetEmail = async (toEmail, resetToken, role) => {
         </a>
       </div>
 
-      <div style="background:#171725;color:#FFFFFF;padding:20px;border-radius:12px;margin:40px 0;">
-        <p style="margin:0 0 8px 0;font-size:14px;color:#AAAAAA;">Or click this link if the button doesn't work:</p>
-        <p style="margin:0;font-size:13px;word-break:break-all;">
-          <a href="${resetLink}" style="color:#FEBD2F;text-decoration:underline;">${resetLink}</a>
-        </p>
-      </div>
-
       <p style="color:#666666;font-size:15px;line-height:1.7;margin-top:40px;">
         This link will expire in <strong style="color:#FEBD2F;">1 hour</strong> for security.<br><br>
         If you didn't request this, please ignore this email.
-      </p>
-
-        <p style="color:#666666;font-size:15px;line-height:1.7;margin-top:40px;">
-        ${resetToken}
       </p>
     </div>
   `;

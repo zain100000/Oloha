@@ -1,0 +1,46 @@
+{
+  "name": "oloha-backend",
+  "version": "1.0.0",
+  "description": "The Oloha backend, built with Node.js and Express, powers a multi-role travel management platform designed for Pakistan and global use. It supports three core roles: SuperAdmin, Travel Agencies, and Users, enabling a complete ecosystem for travel package discovery, booking, and management. The backend implements secure authentication using JWT, role-based access control, and verification layers for agency onboarding. It manages the entire lifecycle of travel packages, including creation, approval workflows, itinerary management, availability scheduling, pricing, gallery uploads, and promotional features. Agencies can oversee bookings, communicate with customers, monitor earnings, and request payouts, while users can browse, compare, and book travel experiences with real-time updates. Oloha’s backend provides a robust suite of RESTful APIs covering agencies, packages, bookings, users, chats, notifications, payments, reviews, commissions, and CMS elements. It integrates Cloudinary for media storage, supports real-time messaging via Socket.io, and delivers push notifications through FCM. The system features local and international payment gateways (JazzCash, Easypaisa, Stripe, PayPal) to support secure transaction flows, refunds, commission deductions, and detailed financial reporting. Advanced search and filtering allow destination-based, budget-based, and date-based package discovery.Scalable, modular, and optimized for production workloads, the Oloha backend includes logging, monitoring, analytics dashboards, agency performance metrics, and admin-level oversight. It ensures efficient, secure data handling and seamless integration with both mobile and web frontends, delivering a high-performance travel marketplace experience",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write ."
+  },
+  "keywords": [
+    "Oloha",
+    "Travel",
+    "backend",
+    "node.js"
+  ],
+  "author": "zain100000",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.13.2",
+    "bcrypt": "^6.0.0",
+    "body-parser": "^2.2.0",
+    "cloudinary": "^2.8.0",
+    "compression": "^1.8.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.2.1",
+    "express-slow-down": "^3.0.1",
+    "helmet": "^8.1.0",
+    "hpp": "^0.2.3",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^7.0.0",
+    "mongoose": "^8.20.0",
+    "morgan": "^1.10.1",
+    "multer": "^2.0.2",
+    "nodemailer": "^7.0.10",
+    "xss-clean": "^0.1.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11",
+    "prettier": "^3.6.2"
+  }
+}

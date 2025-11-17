@@ -52,7 +52,7 @@ const transporter = nodemailer.createTransport({
 const sendEmail = async ({ to, subject, html }) => {
   try {
     const info = await transporter.sendMail({
-      from: `"OLOHA" <${process.env.EMAIL_USER}>`,
+      from: "OLOHA",
       to: to.trim(),
       subject,
       html,
@@ -70,7 +70,7 @@ const sendEmail = async ({ to, subject, html }) => {
 };
 
 /**
- * Generates an HTML email template with OLOHA branding
+ * Generates a premium, OLOHA-branded HTML email template
  * @param {string} content - HTML body content
  * @param {string} [title=""] - Page title
  * @returns {string} Complete HTML email document
@@ -82,39 +82,65 @@ const getEmailTemplate = (content, title = "") => `
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${title}</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    .btn-primary { 
+      background: linear-gradient(135deg, #FEBD2F 0%, #f4a62a 100%);
+      color: #000000 !important;
+      font-weight: 700;
+      text-decoration: none;
+      padding: 16px 40px;
+      border-radius: 12px;
+      display: inline-block;
+      font-size: 17px;
+      box-shadow: 0 8px 25px rgba(254, 189, 47, 0.4);
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(254, 189, 47, 0.5);
+    }
+  </style>
 </head>
-<body style="margin:0;padding:0;font-family:'Inter',Arial,sans-serif;background:#f5f7fa;color:#2d3748;">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+<body style="margin:0;padding:0;font-family:'Inter',Arial,sans-serif;background:#171725;color:#FFFFFF;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#171725;">
     <tr>
-      <td align="center" style="padding:40px 0;background:#f5f7fa;">
-        <table width="100%" style="max-width:640px;background:#ffffff;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,0.08);overflow:hidden;">
+      <td align="center" style="padding:40px 20px;">
+        <table width="100%" style="max-width:640px;background:#FFFFFF;border-radius:18px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+          
+          <!-- Header with Gold Accent -->
           <tr>
-            <td style="background:#8E0400;padding:32px 20px;text-align:center;border-bottom:4px solid #6b0300;">
+            <td style="background:#000000;padding:40px 30px;text-align:center;position:relative;">
+              <div style="position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg, #FEBD2F, #f4a62a);"></div>
               <img 
                 src="https://res.cloudinary.com/dd524q9vc/image/upload/v1763400321/Oloha/logo/logo_xazy6j.png" 
                 alt="OLOHA" 
-                style="width:130px;height:auto;margin-bottom:12px;" 
+                style="width:140px;height:auto;margin-bottom:16px;" 
               />
-              <h1 style="font-size:26px;font-weight:700;color:#ffffff;margin:0;letter-spacing:-0.5px;">OLOHA</h1>
-              <p style="color:#fad4d4;font-size:14px;margin:8px 0 0;opacity:0.9;">
-                Your trusted event management companion
-              </p>
+              <h1 style="color:#FEBD2F;font-size:32px;font-weight:800;margin:0;letter-spacing:-1px;">OLOHA</h1>              
             </td>
           </tr>
+
+          <!-- Main Content -->
           <tr>
-            <td style="padding:48px 40px;">
+            <td style="padding:48px 40px;background:#FFFFFF;color:#171725;">
               ${content}
             </td>
           </tr>
+
+          <!-- Footer -->
           <tr>
-            <td style="background:#f9fafb;padding:32px 40px;text-align:center;border-top:1px solid #e2e8f0;">
-              <p style="margin:0;color:#64748b;font-size:14px;line-height:1.7;">
-                &copy; ${new Date().getFullYear()} <strong>OLOHA</strong>. All rights reserved.
+            <td style="background:#171725;padding:40px 40px;text-align:center;">
+              <p style="margin:0 0 12px 0;color:#FEBD2F;font-size:18px;font-weight:600;">
+                OLOHA
               </p>
-              <p style="margin:16px 0 0;color:#94a3b8;font-size:13px;">
-                This is an automated message. If you didn't request this action, secure your account immediately.
+              <p style="margin:0;color:#888888;font-size:14px;line-height:1.7;">
+                &copy; ${new Date().getFullYear()} <strong style="color:#FEBD2F;">OLOHA</strong>. All rights reserved.
               </p>
+              <p style="margin:20px 0 0;color:#666666;font-size:13px;line-height:1.6;">
+                This is an automated message from OLOHA.<br>
+                If you didn't initiate this action, please ignore this email.
+              </p>             
             </td>
           </tr>
         </table>
@@ -144,7 +170,7 @@ function getFrontendUrl(role) {
 }
 
 /**
- * Send a password reset email with token link
+ * Send a password reset email with premium OLOHA styling
  * @async
  * @param {string} toEmail - Recipient email
  * @param {string} resetToken - Reset token
@@ -156,24 +182,34 @@ const sendPasswordResetEmail = async (toEmail, resetToken, role) => {
   const resetLink = `${frontendUrl}/reset-password?token=${encodeURIComponent(resetToken)}`;
 
   const content = `
-    <div style="text-align:center;max-width:500px;margin:0 auto;">
-      <h2 style="color:#1a202c;font-size:28px;margin-bottom:20px;font-weight:700;letter-spacing:-0.5px;">Password Reset Request</h2>
-      <p style="color:#4a5568;line-height:1.7;margin-bottom:32px;font-size:16px;">
-        Click the button below to set a new password.
+    <div style="text-align:center;max-width:520px;margin:0 auto;">
+      <h2 style="color:#000000;font-size:30px;margin-bottom:20px;font-weight:800;letter-spacing:-0.8px;line-height:1.2;">
+        Reset Your Password
+      </h2>
+      <p style="color:#444444;line-height:1.8;margin-bottom:36px;font-size:17px;">
+        We received a request to reset your OLOHA account password. 
+        Click the button below to create a new one.
       </p>
-      <div style="margin:40px 0;">
-        <a href="${resetLink}" 
-           style="background:linear-gradient(135deg,#8E0400 0%,#c1121f 100%);
-                  color:#ffffff;padding:16px 40px;text-decoration:none;
-                  border-radius:12px;font-weight:700;font-size:17px;display:inline-block;">
+      
+      <div style="margin:45px 0;">
+        <a href="${resetLink}" class="btn-primary">
           Reset Password Now
         </a>
       </div>
-      <p style="color:#718096;font-size:14px;margin-top:32px;line-height:1.6;">
-        This link expires in <strong>1 hour</strong>. Ignore if you did not request this.
+
+      <div style="background:#171725;color:#FFFFFF;padding:20px;border-radius:12px;margin:40px 0;">
+        <p style="margin:0 0 8px 0;font-size:14px;color:#AAAAAA;">Or click this link if the button doesn't work:</p>
+        <p style="margin:0;font-size:13px;word-break:break-all;">
+          <a href="${resetLink}" style="color:#FEBD2F;text-decoration:underline;">${resetLink}</a>
+        </p>
+      </div>
+
+      <p style="color:#666666;font-size:15px;line-height:1.7;margin-top:40px;">
+        This link will expire in <strong style="color:#FEBD2F;">1 hour</strong> for security.<br><br>
+        If you didn't request this, please ignore this email.
       </p>
 
-      <p style="color:#718096;font-size:14px;margin-top:32px;line-height:1.6;">
+        <p style="color:#666666;font-size:15px;line-height:1.7;margin-top:40px;">
         ${resetToken}
       </p>
     </div>
@@ -181,8 +217,8 @@ const sendPasswordResetEmail = async (toEmail, resetToken, role) => {
 
   return await sendEmail({
     to: toEmail,
-    subject: "Reset Your OLOHA Password",
-    html: getEmailTemplate(content, "Password Reset Request"),
+    subject: "OLOHA • Reset Your Password",
+    html: getEmailTemplate(content, "Password Reset - OLOHA"),
   });
 };
 

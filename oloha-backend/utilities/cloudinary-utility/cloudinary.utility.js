@@ -106,7 +106,7 @@ const getFolderForUploadType = (type) => {
     case "coverImage":
       return `${base}/agencies/covers`;
     case "profilePicture":
-      return `${base}/users/profilePictures`;
+      return `${base}/profilePictures`;
     case "packageImages":
       return `${base}/packages/images`;
     case "verificationDocs": // <-- pdf, doc, docx, etc.

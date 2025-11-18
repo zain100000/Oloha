@@ -15,6 +15,7 @@ const crypto = require("crypto");
 const rateLimit = require("express-rate-limit");
 const SuperAdmin = require("../../models/super-admin-model/super-admin.model");
 const Agency = require("../../models/travel-agency-model/travel-agency.model");
+const User = require("../../models/user-model/user.model");
 
 // ------------------------------------------------------------------
 // ENVIRONMENT VALIDATION
@@ -152,6 +153,11 @@ exports.encryptedAuthMiddleware = async (req, res, next) => {
       case "AGENCY":
         Model = Agency;
         break;
+
+      case "USER":
+        Model = User;
+        break;
+
       default:
         return res
           .status(401)

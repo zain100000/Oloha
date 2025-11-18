@@ -12,6 +12,7 @@
 
 const bcrypt = require("bcrypt");
 const SuperAdmin = require("../../models/super-admin-model/super-admin.model");
+const Agency = require("../../models/travel-agency-model/travel-agency.model");
 const {
   uploadToCloudinary,
   deleteFromCloudinary,
@@ -79,8 +80,8 @@ exports.registerSuperAdmin = async (req, res) => {
       userName,
       email: email.toLowerCase(),
       password: hashedPassword,
-      role: "SUPERADMIN",
       isActive: true,
+      role: "SUPERADMIN",
       lastLogin: null,
       loginAttempts: 0,
       lockUntil: null,
@@ -286,5 +287,121 @@ exports.logoutSuperAdmin = async (req, res) => {
       message: "Server Error",
       error: error.message,
     });
+  }
+};
+
+// ================== SUPER ADMIN ACTION CONTROLLER =========
+// ==========================================================
+// ==========================================================
+// ==========================================================
+
+/**
+ * Update Agency Status (Activate, Suspend, Ban)
+ * PUT /api/super-admin/agency/update-agencty-status/:agencyId
+ * Private access
+ *
+ * @async
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>}
+ */
+exports.updateAgencyStatus = async (req, res) => {
+  try {
+    const { agencyId } = req.params;
+    const { action, reason, durationInHours } = req.body;
+
+    // Validate action
+    if (!["ACTIVE", "SUSPEND", "BAN"].includes(action)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid action" });
+    }
+
+    // Find agency
+    const agency = await Agency.findById(agencyId);
+    if (!agency) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Agency not found" });
+    }
+
+    const now = new Date();
+
+    if (action === "ACTIVE") {
+      agency.status = "ACTIVATED";
+    } else if (action === "SUSPEND") {
+      agency.status = "SUSPENDED";
+      agency.suspension = {
+        type: "SHORT_TERM",
+        reason: reason || null,
+        startAt: now,
+        endAt: new Date(
+          now.getTime() + (durationInHours || 24) * 60 * 60 * 1000
+        ),
+      };
+    } else if (action === "BAN") {
+      agency.status = "BANNED";
+      agency.suspension = {
+        type: "LONG_TERM",
+        reason: reason || null,
+        startAt: now,
+        endAt: null,
+      };
+    }
+
+    await agency.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Agency ${action.toLowerCase()}ed successfully`,
+      status: {
+        agencyId: agency._id,
+        status: agency.status,
+        suspension: agency.suspension,
+      },
+    });
+  } catch (error) {
+    console.error("Error updating agency status:", error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+/**
+ * Update Agency Verification
+ * PUT /api/super-admin/agency/update-agency-verification/:agencyId
+ * Private access
+ *
+ * @async
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>}
+ */
+exports.updateAgencyVerification = async (req, res) => {
+  try {
+    const { agencyId } = req.params;
+    const { isVerified } = req.body;
+
+    const agency = await Agency.findById(agencyId);
+    if (!agency) {
+      return res.status(404).json({
+        success: false,
+        message: "Agency not found",
+      });
+    }
+
+    agency.isVerified = isVerified;
+    await agency.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Agency ${isVerified ? "verified" : "unverified"} successfully`,
+      verificationStatus: {
+        agencyId: agency._id,
+        isVerified: agency.isVerified,
+      },
+    });
+  } catch (error) {
+    console.error("Error updating agency verification:", error);
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };

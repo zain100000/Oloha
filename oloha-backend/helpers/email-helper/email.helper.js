@@ -160,10 +160,16 @@ const getEmailTemplate = (content, title = "") => `
 function getFrontendUrl(role) {
   switch (role) {
     case "SUPERADMIN":
-      if (!process.env.SUPERADMIN_FRONTEND_URL) {
-        throw new Error("SUPERADMIN_FRONTEND_URL is not defined");
+      if (!process.env.FRONTEND_URL) {
+        throw new Error("FRONTEND_URL is not defined");
       }
-      return process.env.SUPERADMIN_FRONTEND_URL.replace(/\/+$/, "");
+      return process.env.FRONTEND_URL.replace(/\/+$/, "");
+
+    case "AGENCY":
+      if (!process.env.FRONTEND_URL) {
+        throw new Error("FRONTEND_URL is not defined");
+      }
+      return process.env.FRONTEND_URL.replace(/\/+$/, "");
     default:
       throw new Error(`No frontend URL configured for role: ${role}`);
   }
@@ -211,8 +217,62 @@ const sendPasswordResetEmail = async (toEmail, resetToken, role) => {
   });
 };
 
+/**
+ * Send Agency Account Deletion Confirmation Email
+ * @async
+ * @param {string} toEmail - Agency's email
+ * @param {string} agencyName - Name of the agency (for personalization)
+ * @returns {Promise<boolean>} True if email sent successfully
+ */
+const sendAgencyDeletionConfirmationEmail = async (
+  toEmail,
+  agencyName = "Agency"
+) => {
+  const content = `
+    <div style="text-align:center;max-width:520px;margin:0 auto;">
+      <h2 style="color:#000000;font-size:30px;margin-bottom:20px;font-weight:800;letter-spacing:-0.8px;line-height:1.2;">
+        Your OLOHA Agency Account Has Been Permanently Deleted
+      </h2>
+      
+      <p style="color:#444444;line-height:1.8;margin-bottom:28px;font-size:17px;">
+        Hello <strong>${agencyName}</strong>,
+      </p>
+      
+      <p style="color:#444444;line-height:1.8;margin-bottom:32px;font-size:17px;">
+        This is a confirmation that your OLOHA agency account, along with all associated data 
+        (travel packages, bookings, images, verification documents, etc.), has been 
+        <strong style="color:#d32f2f;">permanently deleted</strong> from our platform as per your request.
+      </p>
+
+      <div style="background:#fff3cd;padding:24px;border-radius:12px;margin:32px 0;border-left:6px solid #FEBD2F;">
+        <p style="margin:0;color:#856404;font-size:16px;line-height:1.7;">
+          <strong>Important:</strong> This action is irreversible.<br>
+          All your data has been completely removed and cannot be recovered.
+        </p>
+      </div>
+
+      <p style="color:#555555;font-size:16px;line-height:1.8;margin-bottom:40px;">
+        We're sorry to see you go! If you ever want to join OLOHA again, 
+        we'd love to welcome you back. You can register a new agency account anytime.
+      </p>     
+
+      <p style="color:#777777;font-size:14px;margin-top:50px;">
+        Thank you for being part of the OLOHA family.<br>
+        Wishing you safe travels and success ahead!
+      </p>
+    </div>
+  `;
+
+  return await sendEmail({
+    to: toEmail,
+    subject: "OLOHA • Your Agency Account Has Been Deleted",
+    html: getEmailTemplate(content, "Account Deleted - OLOHA"),
+  });
+};
+
 module.exports = {
   sendEmail,
-  sendPasswordResetEmail,
   getEmailTemplate,
+  sendPasswordResetEmail,
+  sendAgencyDeletionConfirmationEmail,
 };

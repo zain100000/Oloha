@@ -8,40 +8,21 @@
 
 const express = require("express");
 const router = express.Router();
-const {
-  forgotPassword,
-  resetPassword,
-  verifyToken,
-} = require("../../controllers/shared-controller/shared-password.reset.controller");
+const sharedController = require("../../controllers/shared-controller/shared-password.reset.controller");
 
 /**
- * @route POST /api/password/forgot-password
  * @description Sends a password reset link to the user’s email if the account exists.
- * @access Public
- * @example
- * POST /api/password/forgot-password
- * Body: { "email": "user@example.com", "role": "SUPERADMIN" }
  */
-router.post("/forgot-password", forgotPassword);
+router.post("/forgot-password", sharedController.forgotPassword);
 
 /**
- * @route POST /api/password/reset-password
  * @description Resets the user’s password using a valid token.
- * @access Public
- * @example
- * POST /api/password/reset-password
- * Body: { "newPassword": "StrongP@ssw0rd" }
- * Params: { "token": "secureTokenFromEmail" }
  */
-router.post("/reset-password/:token", resetPassword);
+router.post("/reset-password/:token", sharedController.resetPassword);
 
 /**
- * @route POST /api/password/verify-token/:token
  * @description Verifies if a password reset token is valid and not expired.
- * @access Public
- * @example
- * POST /api/password/verify-token/secureTokenFromEmail
  */
-router.post("/verify-token/:token", verifyToken);
+router.post("/verify-token/:token", sharedController.verifyToken);
 
 module.exports = router;

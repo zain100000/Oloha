@@ -14,6 +14,7 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const rateLimit = require("express-rate-limit");
 const SuperAdmin = require("../../models/super-admin-model/super-admin.model");
+const Agency = require("../../models/travel-agency-model/travel-agency.model");
 
 // ------------------------------------------------------------------
 // ENVIRONMENT VALIDATION
@@ -147,6 +148,10 @@ exports.encryptedAuthMiddleware = async (req, res, next) => {
       case "SUPERADMIN":
         Model = SuperAdmin;
         break;
+
+      case "AGENCY":
+        Model = Agency;
+        break;
       default:
         return res
           .status(401)
@@ -163,12 +168,6 @@ exports.encryptedAuthMiddleware = async (req, res, next) => {
       return res
         .status(401)
         .json({ success: false, message: "Session mismatch detected" });
-    }
-
-    if (!user.isActive) {
-      return res
-        .status(403)
-        .json({ success: false, message: "Account is disabled" });
     }
 
     req.user = {

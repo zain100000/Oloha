@@ -10,7 +10,6 @@
 
 const express = require("express");
 const router = express.Router();
-
 const superAdminController = require("../../controllers/super-admin-controller/super-admin.controller");
 const {
   encryptedAuthMiddleware,
@@ -19,12 +18,7 @@ const {
 const cloudinaryUtility = require("../../utilities/cloudinary-utility/cloudinary.utility");
 
 /**
- * @route POST /api/super-admin/signup-super-admin
  * @description Registers a new Super Admin with optional profile picture upload.
- * @access Public
- * @example
- * POST /api/super-admin/signup-super-admin
- * Body: { "userName": "John Doe", "email": "admin@example.com", "password": "StrongP@ssw0rd" }
  */
 router.post(
   "/signup-super-admin",
@@ -33,12 +27,8 @@ router.post(
 );
 
 /**
- * @route POST /api/super-admin/signin-super-admin
- * @description Logs in a Super Admin and returns AES-256-GCM encrypted JWT.
- * @access Public
- * @example
- * POST /api/super-admin/signin-super-admin
- * Body: { "email": "admin@example.com", "password": "StrongP@ssw0rd" }
+ 
+ * @description Logs in a Super Admin and returns AES-256-GCM encrypted JWT.  
  */
 router.post(
   "/signin-super-admin",
@@ -47,11 +37,8 @@ router.post(
 );
 
 /**
- * @route GET /api/super-admin/get-super-admin-by-id/:superAdminId
- * @description Retrieves Super Admin details by ID (excluding password and internal fields).
- * @access Private
- * @example
- * GET /api/super-admin/get-super-admin-by-id/64f8c9a1e7d4f72f3a2c123
+ 
+ * @description Retrieves Super Admin details by ID (excluding password and internal fields).  
  */
 router.get(
   "/get-super-admin-by-id/:superAdminId",
@@ -60,16 +47,38 @@ router.get(
 );
 
 /**
- * @route POST /api/super-admin/logout-super-admin
- * @description Logs out a Super Admin, invalidates the session, and clears JWT cookie.
- * @access Private
- * @example
- * POST /api/super-admin/logout-super-admin
+ 
+ * @description Logs out a Super Admin, invalidates the session, and clears JWT cookie.  
  */
 router.post(
   "/logout-super-admin",
   encryptedAuthMiddleware,
   superAdminController.logoutSuperAdmin
+);
+
+// ================== SUPER ADMIN ACTION ROUTES =============
+// ==========================================================
+// ==========================================================
+// ==========================================================
+
+/**
+ 
+ * @description Update agency status (Activate, Suspend, Ban) by Super Admin.  
+ */
+router.put(
+  "/agency/update-agency-status/:agencyId",
+  encryptedAuthMiddleware,
+  superAdminController.updateAgencyStatus
+);
+
+/**
+ 
+ * @description Update agency verification status by Super Admin.
+ */
+router.put(
+  "/agency/update-verification-status/:agencyId",
+  encryptedAuthMiddleware,
+  superAdminController.updateAgencyVerification
 );
 
 module.exports = router;

@@ -224,10 +224,7 @@ const sendPasswordResetEmail = async (toEmail, resetToken, role) => {
  * @param {string} agencyName - Name of the agency (for personalization)
  * @returns {Promise<boolean>} True if email sent successfully
  */
-const sendAgencyDeletionConfirmationEmail = async (
-  toEmail,
-  agencyName = "Agency"
-) => {
+const sendAgencyDeletionConfirmationEmail = async (toEmail, agencyName) => {
   const content = `
     <div style="text-align:center;max-width:520px;margin:0 auto;">
       <h2 style="color:#000000;font-size:30px;margin-bottom:20px;font-weight:800;letter-spacing:-0.8px;line-height:1.2;">

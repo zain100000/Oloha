@@ -267,9 +267,238 @@ const sendAgencyDeletionConfirmationEmail = async (toEmail, agencyName) => {
   });
 };
 
+/**
+ * Send Agency Status Update Notification Email
+ * @async
+ * @param {string} toEmail - Agency's email
+ * @param {string} agencyName - Name of the agency
+ * @param {string} status - New status (ACTIVATED, SUSPENDED, BANNED)
+ * @param {string} reason - Reason for status change (optional)
+ * @param {Date} suspensionEnd - End date for suspension (optional)
+ * @returns {Promise<boolean>} True if email sent successfully
+ */
+const sendAgencyStatusUpdateEmail = async (
+  toEmail,
+  agencyName,
+  status,
+  reason = null,
+  suspensionEnd = null
+) => {
+  let statusTitle,
+    statusMessage,
+    instructions,
+    showSuspensionInfo = false;
+
+  switch (status) {
+    case "ACTIVATED":
+      statusTitle = "Account Activated";
+      statusMessage =
+        "Your OLOHA agency account has been activated and is now live on our platform!";
+      instructions =
+        "You can now log in, create travel packages, and start accepting bookings from travelers.";
+      break;
+
+    case "SUSPENDED":
+      statusTitle = "Account Suspended";
+      statusMessage =
+        "Your OLOHA agency account has been temporarily suspended.";
+      instructions =
+        "During this suspension period, your profile and packages will not be visible to travelers, and you won't be able to receive new bookings.";
+      showSuspensionInfo = true;
+      break;
+
+    case "BANNED":
+      statusTitle = "Account Banned";
+      statusMessage = "Your OLOHA agency account has been permanently banned.";
+      instructions =
+        "Your profile, packages, and all associated data have been removed from our platform. This action is permanent and cannot be reversed.";
+      break;
+
+    default:
+      statusTitle = "Account Status Updated";
+      statusMessage = "Your OLOHA agency account status has been updated.";
+      instructions = "Please check your account dashboard for details.";
+  }
+
+  const suspensionInfo = showSuspensionInfo
+    ? `
+    ${
+      suspensionEnd
+        ? `
+    <div style="background:#e8f4fd;padding:20px;border-radius:10px;margin:20px 0;border-left:4px solid #2196F3;">
+      <p style="margin:0;color:#0d47a1;font-size:15px;line-height:1.6;">
+        <strong>Suspension Details:</strong><br>
+        ${reason ? `Reason: ${reason}<br>` : ""}
+        ${suspensionEnd ? `Scheduled reactivation: ${suspensionEnd.toLocaleDateString()} at ${suspensionEnd.toLocaleTimeString()}` : ""}
+      </p>
+    </div>
+    `
+        : ""
+    }
+  `
+    : "";
+
+  const contactSupport =
+    status !== "ACTIVATED"
+      ? `
+    <div style="margin-top:30px;padding-top:20px;border-top:1px solid #eeeeee;">
+      <p style="color:#666666;font-size:15px;line-height:1.6;">
+        If you believe this action was taken in error or have any questions, 
+        please contact our support team for assistance.
+      </p>
+    </div>
+  `
+      : "";
+
+  const content = `
+    <div style="text-align:left;max-width:520px;margin:0 auto;">
+      <h2 style="color:#000000;font-size:28px;margin-bottom:20px;font-weight:800;letter-spacing:-0.8px;line-height:1.2;">
+        ${statusTitle}
+      </h2>
+      
+      <p style="color:#444444;line-height:1.8;margin-bottom:20px;font-size:17px;">
+        Hello <strong>${agencyName}</strong>,
+      </p>
+      
+      <p style="color:#444444;line-height:1.8;margin-bottom:25px;font-size:17px;">
+        ${statusMessage}
+      </p>
+
+      <div style="background:#f8f9fa;padding:24px;border-radius:12px;margin:25px 0;border:2px solid ${
+        status === "ACTIVATED"
+          ? "#4CAF50"
+          : status === "SUSPENDED"
+            ? "#FF9800"
+            : "#f44336"
+      };">
+        <p style="margin:0;color:#444444;font-size:16px;line-height:1.7;font-weight:600;">
+          New Status: 
+          <span style="color:${
+            status === "ACTIVATED"
+              ? "#4CAF50"
+              : status === "SUSPENDED"
+                ? "#FF9800"
+                : "#f44336"
+          };">
+            ${status}
+          </span>
+        </p>
+        ${
+          reason
+            ? `
+        <p style="margin:15px 0 0 0;color:#666666;font-size:15px;line-height:1.6;">
+          <strong>Reason:</strong> ${reason}
+        </p>
+        `
+            : ""
+        }
+      </div>
+
+      ${suspensionInfo}
+
+      <p style="color:#444444;line-height:1.8;margin-bottom:30px;font-size:16px;">
+        ${instructions}
+      </p>
+
+      ${contactSupport}
+    </div>
+  `;
+
+  return await sendEmail({
+    to: toEmail,
+    subject: `OLOHA • Agency Account ${statusTitle}`,
+    html: getEmailTemplate(content, `Account ${statusTitle} - OLOHA`),
+  });
+};
+
+/**
+ * Send Agency Verification Status Update Email
+ * @async
+ * @param {string} toEmail - Agency's email
+ * @param {string} agencyName - Name of the agency
+ * @param {boolean} isVerified - New verification status
+ * @returns {Promise<boolean>} True if email sent successfully
+ */
+const sendAgencyVerificationUpdateEmail = async (
+  toEmail,
+  agencyName,
+  isVerified
+) => {
+  const statusTitle = isVerified
+    ? "Verification Approved"
+    : "Verification Status Updated";
+  const statusMessage = isVerified
+    ? "Congratulations! Your OLOHA agency account has been successfully verified."
+    : "Your OLOHA agency verification status has been updated.";
+
+  const benefits = isVerified
+    ? `
+    <div style="background:#e8f5e8;padding:20px;border-radius:10px;margin:20px 0;border-left:4px solid #4CAF50;">
+      <p style="margin:0 0 12px 0;color:#2e7d32;font-size:16px;font-weight:600;">
+        ✓ Verified Agency Benefits:
+      </p>
+      <ul style="margin:0;color:#2e7d32;font-size:14px;line-height:1.6;padding-left:20px;">
+        <li>Increased trust and credibility with travelers</li>
+        <li>Higher visibility in search results</li>
+        <li>Verified badge on your profile</li>
+        <li>Priority support</li>
+      </ul>
+    </div>
+  `
+    : "";
+
+  const content = `
+    <div style="text-align:left;max-width:520px;margin:0 auto;">
+      <h2 style="color:#000000;font-size:28px;margin-bottom:20px;font-weight:800;letter-spacing:-0.8px;line-height:1.2;">
+        ${statusTitle}
+      </h2>
+      
+      <p style="color:#444444;line-height:1.8;margin-bottom:20px;font-size:17px;">
+        Hello <strong>${agencyName}</strong>,
+      </p>
+      
+      <p style="color:#444444;line-height:1.8;margin-bottom:25px;font-size:17px;">
+        ${statusMessage}
+      </p>
+
+      <div style="background:#f8f9fa;padding:24px;border-radius:12px;margin:25px 0;border:2px solid ${
+        isVerified ? "#4CAF50" : "#FF9800"
+      };">
+        <p style="margin:0;color:#444444;font-size:16px;line-height:1.7;font-weight:600;">
+          Verification Status: 
+          <span style="color:${isVerified ? "#4CAF50" : "#FF9800"};">
+            ${isVerified ? "VERIFIED ✓" : "NOT VERIFIED"}
+          </span>
+        </p>
+      </div>
+
+      ${benefits}
+
+      <p style="color:#444444;line-height:1.8;margin-top:30px;font-size:16px;">
+        ${
+          isVerified
+            ? "You can now enjoy all the benefits of being a verified OLOHA travel agency. Thank you for completing our verification process!"
+            : "If you have any questions about the verification process or need assistance, please contact our support team."
+        }
+      </p>
+    </div>
+  `;
+
+  return await sendEmail({
+    to: toEmail,
+    subject: `OLOHA • Agency Verification ${isVerified ? "Approved" : "Updated"}`,
+    html: getEmailTemplate(
+      content,
+      `Verification ${isVerified ? "Approved" : "Updated"} - OLOHA`
+    ),
+  });
+};
+
 module.exports = {
   sendEmail,
   getEmailTemplate,
   sendPasswordResetEmail,
   sendAgencyDeletionConfirmationEmail,
+  sendAgencyStatusUpdateEmail,
+  sendAgencyVerificationUpdateEmail,
 };

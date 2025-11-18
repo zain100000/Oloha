@@ -426,6 +426,7 @@ exports.deleteAgency = async (req, res) => {
   }
 
   try {
+    // Fetch agency with related packages and bookings
     const agency = await TravelAgency.findById(agencyId)
       .populate("packages")
       .populate("bookings");
@@ -437,73 +438,69 @@ exports.deleteAgency = async (req, res) => {
       });
     }
 
+    // 1️⃣ Send confirmation email first
+    try {
+      const emailSent = await sendAgencyDeletionConfirmationEmail(
+        agency.email,
+        agency.agencyName
+      );
+      if (!emailSent) console.warn("❌ Email not sent to", agency.email);
+    } catch (err) {
+      console.warn("❌ Error sending deletion email:", err.message);
+    }
+
+    // 2️⃣ Collect Cloudinary files
     const cloudinaryFiles = [];
-
-    if (agency.agencyLogo) {
-      cloudinaryFiles.push(agency.agencyLogo);
-    }
-    if (agency.coverImage) {
-      cloudinaryFiles.push(agency.coverImage);
-    }
-
+    if (agency.agencyLogo) cloudinaryFiles.push(agency.agencyLogo);
+    if (agency.coverImage) cloudinaryFiles.push(agency.coverImage);
     if (agency.verificationDocs?.length > 0) {
-      agency.verificationDocs.forEach((doc) => {
-        cloudinaryFiles.push(doc.docUrl);
-      });
+      agency.verificationDocs.forEach((doc) =>
+        cloudinaryFiles.push(doc.docUrl)
+      );
     }
 
+    // Add package images
     if (agency.packages?.length > 0) {
       for (const pkg of agency.packages) {
         if (pkg.images?.length > 0) {
-          pkg.images.forEach((img) => {
-            cloudinaryFiles.push(img);
-          });
+          pkg.images.forEach((img) => cloudinaryFiles.push(img));
         }
         await Package.findByIdAndDelete(pkg._id);
       }
     }
 
+    // Delete bookings
     if (agency.bookings?.length > 0) {
       for (const booking of agency.bookings) {
         await Booking.findByIdAndDelete(booking._id);
       }
     }
 
-    if (cloudinaryFiles.length > 0) {
-      for (const fileUrl of cloudinaryFiles) {
-        try {
-          await deleteFromCloudinary(fileUrl);
-        } catch (err) {
-          console.warn(
-            `⚠️ Failed to delete file from Cloudinary: ${fileUrl}`,
-            err.message
-          );
-        }
+    // 3️⃣ Delete files from Cloudinary
+    for (const fileUrl of cloudinaryFiles) {
+      try {
+        await deleteFromCloudinary(fileUrl);
+      } catch (err) {
+        console.warn(
+          `⚠️ Failed to delete Cloudinary file: ${fileUrl}`,
+          err.message
+        );
       }
     }
+
+    // 4️⃣ Delete agency from DB
     await TravelAgency.findByIdAndDelete(agencyId);
 
-    sendAgencyDeletionConfirmationEmail(agency.email, agency.agencyName)
-      .then((success) => {
-        if (success) {
-          console.log(`Deletion confirmation email sent to ${agency.email}`);
-        } else {
-          console.warn(`Failed to send deletion email to ${agency.email}`);
-        }
-      })
-      .catch((err) => {
-        console.warn("Error sending agency deletion email:", err.message);
-      });
-
+    // 5️⃣ Clear access token cookie
     res.clearCookie("accessToken", { httpOnly: true, sameSite: "strict" });
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Agency account and all related data deleted permanently.",
     });
   } catch (err) {
     console.error("❌ Error deleting agency:", err);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Server Error. Unable to delete agency.",
       error: err.message,

@@ -297,7 +297,7 @@ exports.logoutSuperAdmin = async (req, res) => {
 
 /**
  * Update Agency Status (Activate, Suspend, Ban)
- * PUT /api/super-admin/agency/update-agencty-status/:agencyId
+ * PUT /api/super-admin/agency/update-agency-status/:agencyId
  * Private access
  *
  * @async
@@ -326,18 +326,21 @@ exports.updateAgencyStatus = async (req, res) => {
     }
 
     const now = new Date();
+    let suspensionEnd = null;
 
     if (action === "ACTIVE") {
       agency.status = "ACTIVATED";
+      agency.suspension = undefined;
     } else if (action === "SUSPEND") {
       agency.status = "SUSPENDED";
+      suspensionEnd = new Date(
+        now.getTime() + (durationInHours || 24) * 60 * 60 * 1000
+      );
       agency.suspension = {
         type: "SHORT_TERM",
         reason: reason || null,
         startAt: now,
-        endAt: new Date(
-          now.getTime() + (durationInHours || 24) * 60 * 60 * 1000
-        ),
+        endAt: suspensionEnd,
       };
     } else if (action === "BAN") {
       agency.status = "BANNED";
@@ -351,10 +354,24 @@ exports.updateAgencyStatus = async (req, res) => {
 
     await agency.save();
 
+    // Send email notification to agency
+    try {
+      await sendAgencyStatusUpdateEmail(
+        agency.email,
+        agency.agencyName,
+        agency.status,
+        reason,
+        suspensionEnd
+      );
+    } catch (emailError) {
+      console.error("Failed to send status update email:", emailError);
+      // Don't fail the request if email fails
+    }
+
     res.status(200).json({
       success: true,
       message: `Agency ${action.toLowerCase()}ed successfully`,
-      status: {
+      data: {
         agencyId: agency._id,
         status: agency.status,
         suspension: agency.suspension,
@@ -392,10 +409,22 @@ exports.updateAgencyVerification = async (req, res) => {
     agency.isVerified = isVerified;
     await agency.save();
 
+    // Send email notification to agency
+    try {
+      await sendAgencyVerificationUpdateEmail(
+        agency.email,
+        agency.agencyName,
+        agency.isVerified
+      );
+    } catch (emailError) {
+      console.error("Failed to send verification update email:", emailError);
+      // Don't fail the request if email fails
+    }
+
     res.status(200).json({
       success: true,
       message: `Agency ${isVerified ? "verified" : "unverified"} successfully`,
-      verificationStatus: {
+      data: {
         agencyId: agency._id,
         isVerified: agency.isVerified,
       },

@@ -58,6 +58,7 @@ app.get("/api/health", (req, res) => {
 const superAdminRoute = require("./routes/super-admin-route/super-admin.route");
 const sharedPasswordResetRoute = require("./routes/shared-route/shared-password.reset.route");
 const travelAgencyRoute = require("./routes/travel-agency-route/travel-agency.route");
+const packageRoute = require("./routes/package-route/package.route");
 
 // ==================================================
 // API Routes
@@ -65,6 +66,7 @@ const travelAgencyRoute = require("./routes/travel-agency-route/travel-agency.ro
 app.use("/api/super-admin", superAdminRoute);
 app.use("/api/password", sharedPasswordResetRoute);
 app.use("/api/agency", travelAgencyRoute);
+app.use("/api/package", packageRoute);
 
 // ==================================================
 // 404 Handler

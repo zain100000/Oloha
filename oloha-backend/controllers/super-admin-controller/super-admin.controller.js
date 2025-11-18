@@ -13,6 +13,7 @@
 const bcrypt = require("bcrypt");
 const SuperAdmin = require("../../models/super-admin-model/super-admin.model");
 const Agency = require("../../models/travel-agency-model/travel-agency.model");
+const Package = require("../../models/package-model/Package.model");
 const {
   uploadToCloudinary,
   deleteFromCloudinary,
@@ -30,7 +31,6 @@ const {
 const {
   sendAgencyStatusUpdateEmail,
   sendAgencyVerificationUpdateEmail,
-  sendAgencyDeletionConfirmationEmail,
 } = require("../../helpers/email-helper/email.helper");
 
 /**
@@ -302,7 +302,7 @@ exports.logoutSuperAdmin = async (req, res) => {
 
 /**
  * Update Agency Status (Activate, Suspend, Ban)
- * PUT /api/super-admin/agency/update-agency-status/:agencyId
+ * PUT /api/super-admin/action/update-agency-status/:agencyId
  * Private access
  *
  * @async
@@ -384,13 +384,15 @@ exports.updateAgencyStatus = async (req, res) => {
     });
   } catch (error) {
     console.error("Error updating agency status:", error);
-    res.status(500).json({ success: false, message: "Server Error" });
+    res
+      .status(500)
+      .json({ success: false, message: "Server Error", error: error.message });
   }
 };
 
 /**
  * Update Agency Verification
- * PUT /api/super-admin/agency/update-agency-verification/:agencyId
+ * PUT /api/super-admin/action/update-agency-verification/:agencyId
  * Private access
  *
  * @async
@@ -436,6 +438,62 @@ exports.updateAgencyVerification = async (req, res) => {
     });
   } catch (error) {
     console.error("Error updating agency verification:", error);
-    res.status(500).json({ success: false, message: "Server Error" });
+    res
+      .status(500)
+      .json({ success: false, message: "Server Error", error: error.message });
+  }
+};
+
+/**
+ * Get all agencies
+ * GET /api/super-admin/action/get-all-agencies
+ * Public access
+ *
+ * @async
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>}
+ */
+
+exports.getAllAgencies = async (req, res) => {
+  try {
+    const agency = await Agency.find().select("-__v -password");
+    res.status(200).json({
+      success: true,
+      message: "Agencies fetched successfully!",
+      allAgencies: agency,
+    });
+  } catch (error) {
+    console.error("Error fetching sellers:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Server Error", error: error.message });
+  }
+};
+
+/**
+ * Get all packages
+ * GET /api/super-admin/action/get-all-packages
+ * Public access
+ *
+ * @async
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>}
+ */
+
+exports.getAllPackages = async (req, res) => {
+  try {
+    const package = await Package.find();
+    res.status(200).json({
+      success: true,
+      message: "Packages fetched successfully!",
+      allPackages: package,
+    });
+  } catch (error) {
+    console.error("Error fetching packages:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Server Error", error: error.message });
   }
 };

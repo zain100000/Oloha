@@ -285,22 +285,38 @@ exports.loginAgency = async (req, res) => {
 exports.getAgencyById = async (req, res) => {
   try {
     const { agencyId } = req.params;
-    const agency = await TravelAgency.findById(agencyId).select(
-      "-password -loginAttempts -lockUntil -sessionId -__v"
-    );
-    if (!agency)
-      return res
-        .status(404)
-        .json({ success: false, message: "Agency not found" });
+    const agency = await TravelAgency.findById(agencyId)
+      .select("-password -loginAttempts -lockUntil -sessionId -__v")
+      .populate({
+        path: "packages",
+        select: "-__v", // Exclude version key, include all other fields
+        // If you want to populate nested fields in packages, you can add more here
+        // For example, if packages have nested bookings:
+        // populate: {
+        //   path: "bookings",
+        //   select: "bookingReference status totalAmount"
+        // }
+      });
 
-    res
-      .status(200)
-      .json({ success: true, message: "Agency fetched successfully", agency });
+    if (!agency) {
+      return res.status(404).json({
+        success: false,
+        message: "Agency not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Agency fetched successfully",
+      agency,
+    });
   } catch (error) {
     console.error("Fetch Agency Error:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Server Error", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error: error.message,
+    });
   }
 };
 
@@ -528,6 +544,65 @@ exports.logoutAgency = async (req, res) => {
     res.status(200).json({ success: true, message: "Logout successful" });
   } catch (error) {
     console.error("Logout Error:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Server Error", error: error.message });
+  }
+};
+
+// ================== AGENCY ACTION CONTROLLER ==============
+// ==========================================================
+// ==========================================================
+// ==========================================================
+
+/**
+ * Update Package Status (
+ * PUT /api/agency/action/update-package-status/:packageId
+ * Private access
+ *
+ * @async
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>}
+ */
+exports.updatePackageStatus = async (req, res) => {
+  try {
+    const { packageId } = req.params;
+    const { action } = req.body;
+
+    // Validate action
+    if (!["ACTIVE", "INACTIVE"].includes(action)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid action" });
+    }
+
+    // Find package
+    const package = await Package.findById(packageId);
+    if (!package) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Package not found" });
+    }
+
+    if (action === "ACTIVE") {
+      package.status = "ACTIVATED";
+    } else if (action === "INACTIVE") {
+      package.status = "INACTIVATED";
+    }
+
+    await package.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Package ${action.toLowerCase()}ed successfully`,
+      status: {
+        packageId: package._id,
+        status: package.status,
+      },
+    });
+  } catch (error) {
+    console.error("Error updating agency status:", error);
     res
       .status(500)
       .json({ success: false, message: "Server Error", error: error.message });

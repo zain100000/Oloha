@@ -62,11 +62,10 @@ router.post(
 // ==========================================================
 
 /**
- 
- * @description Update agency status (Activate, Suspend, Ban) by Super Admin.  
+ * @description Update agency status (Activate, Suspend, Ban) by Super Admin.
  */
 router.put(
-  "/agency/update-agency-status/:agencyId",
+  "/action/update-agency-status/:agencyId",
   encryptedAuthMiddleware,
   superAdminController.updateAgencyStatus
 );
@@ -76,9 +75,19 @@ router.put(
  * @description Update agency verification status by Super Admin.
  */
 router.put(
-  "/agency/update-verification-status/:agencyId",
+  "/action/update-verification-status/:agencyId",
   encryptedAuthMiddleware,
   superAdminController.updateAgencyVerification
 );
+
+/**
+ * @description Retrieves all agencies.
+ */
+router.get("/action/get-all-agencies", superAdminController.getAllAgencies);
+
+/**
+ * @description Retrieves all packages.
+ */
+router.get("/action/get-all-packages", superAdminController.getAllPackages);
 
 module.exports = router;

@@ -57,7 +57,7 @@ const packageSchema = new mongoose.Schema(
      * Array of Cloudinary URLs for images.
      * @type {Array<String>}
      */
-    images: [
+    packageImages: [
       {
         type: String,
       },
@@ -130,12 +130,12 @@ const packageSchema = new mongoose.Schema(
 
     /**
      * Package category.
-     * @enum ["TOUR", "HONEYMOON", "ADVENTURE", "GROUP"]
+     * @enum ["TOUR", "HONEYMOON", "ADVENTURE", "GROUP", "FAMILY", "LUXURY"]
      * @type {String}
      */
     category: {
       type: String,
-      enum: ["TOUR", "HONEYMOON", "ADVENTURE", "GROUP"],
+      enum: ["TOUR", "HONEYMOON", "ADVENTURE", "GROUP", "FAMILY", "LUXURY"],
       default: "TOUR",
     },
 
@@ -173,14 +173,14 @@ const packageSchema = new mongoose.Schema(
 
     /**
      * Status of the package.
-     * @enum ["ACTIVE", "INACTIVE", "DELETED"]
+     * @enum ["ACTIVATED, "INACTIVATED", "PENDING"]
      * @type {String}
      */
 
     status: {
       type: String,
-      enum: ["ACTIVE", "INACTIVE", "DELETED"],
-      default: "ACTIVE",
+      enum: ["PENDING", "ACTIVATED", "INACTIVATED"],
+      default: "PENDING",
     },
   },
   { timestamps: true }

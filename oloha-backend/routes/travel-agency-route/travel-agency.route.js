@@ -69,4 +69,18 @@ router.post(
   travelAgencyController.loginAgency
 );
 
+// ================== AGENCY ACTION ROUTES ==================
+// ==========================================================
+// ==========================================================
+// ==========================================================
+
+/**
+ * @description Update package status by Travel Agency.
+ */
+router.put(
+  "/action/update-package-status/:packageId",
+  encryptedAuthMiddleware,
+  travelAgencyController.updatePackageStatus
+);
+
 module.exports = router;

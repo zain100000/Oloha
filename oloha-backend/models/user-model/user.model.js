@@ -191,6 +191,16 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+
+    /**
+     * Last known location of the user
+     * @type {Date|null}
+     */
+    lastKnownLocation: {
+      latitude: { type: Number, default: null },
+      longitude: { type: Number, default: null },
+      address: { type: String, default: null },
+    },
   },
   {
     /**

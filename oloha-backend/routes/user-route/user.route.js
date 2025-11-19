@@ -64,4 +64,13 @@ router.delete(
  */
 router.post("/logout-user", encryptedAuthMiddleware, userController.logoutUser);
 
+/**
+ * @description Update User Location
+ */
+router.patch(
+  "/update-user-location",
+  encryptedAuthMiddleware,
+  userController.updateUserLocation
+);
+
 module.exports = router;

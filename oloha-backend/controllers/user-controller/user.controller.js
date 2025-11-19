@@ -11,6 +11,7 @@
  */
 
 const bcrypt = require("bcrypt");
+const axios = require("axios");
 const User = require("../../models/user-model/user.model");
 const Booking = require("../../models/booking-model/Booking.model");
 const {
@@ -506,6 +507,80 @@ exports.logoutUser = async (req, res) => {
       success: false,
       message: "Server Error",
       error: error.message,
+    });
+  }
+};
+
+/**
+ * @function updateUserLocation
+ * @description Updates the user's live location and also replaces the main address field with the resolved full address.
+ * PATCH /api/user/update-location
+ *
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ */
+exports.updateUserLocation = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { latitude, longitude } = req.body;
+
+    // Validate
+    if (
+      typeof latitude !== "number" ||
+      typeof longitude !== "number" ||
+      isNaN(latitude) ||
+      isNaN(longitude)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Valid latitude and longitude are required",
+      });
+    }
+
+    // Reverse Geocoding (OpenStreetMap – no key required)
+    const geoUrl = `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`;
+
+    const geoResponse = await axios.get(geoUrl, {
+      headers: { "User-Agent": "Oloha-App/1.0" },
+    });
+
+    const fetchedAddress =
+      geoResponse?.data?.display_name || "Unknown Location";
+
+    const updatePayload = {
+      lastKnownLocation: {
+        latitude,
+        longitude,
+        address: fetchedAddress,
+      },
+      address: fetchedAddress, // sync root address
+      updatedAt: new Date(),
+    };
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updatePayload },
+      { new: true }
+    ).select("-password -__v");
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Location updated successfully",
+      location: updatedUser,
+    });
+  } catch (error) {
+    console.error("Update Location Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error while updating location",
     });
   }
 };

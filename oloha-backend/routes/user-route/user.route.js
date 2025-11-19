@@ -47,7 +47,7 @@ router.patch(
   "/update-user-by-id/:userId",
   encryptedAuthMiddleware,
   cloudinaryUtility.upload,
-  userController.updateUser
+  userController.updateUserById
 );
 
 /**
@@ -56,7 +56,7 @@ router.patch(
 router.delete(
   "/delete-user-by-id/:userId",
   encryptedAuthMiddleware,
-  userController.deleteUser
+  userController.deleteUserById
 );
 
 /**

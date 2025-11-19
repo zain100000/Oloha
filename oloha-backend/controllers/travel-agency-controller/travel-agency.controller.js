@@ -34,7 +34,7 @@ const {
 
 /**
  * Register a new Travel Agency
- * POST /api/travel-agency/signup-agency
+ * POST /api/agency/signup-agency
  * Public access
  *
  * @async
@@ -146,7 +146,7 @@ exports.registerAgency = async (req, res) => {
 
 /**
  * Travel Agency login with AES-256-GCM encrypted JWT
- * POST /api/travel-agency/signin-agency
+ * POST /api/agency/signin-agency
  * Public access
  *
  * @async
@@ -275,7 +275,7 @@ exports.loginAgency = async (req, res) => {
 
 /**
  * Get Travel Agency by ID
- * GET /api/travel-agency/get-agency-by-id/:agencyId
+ * GET /api/agency/get-agency-by-id/:agencyId
  * Private access
  *
  * @async
@@ -322,14 +322,14 @@ exports.getAgencyById = async (req, res) => {
 
 /**
  * Update Travel Agency by ID
- * PATCH /api/travel-agency/update-agency-by-id/:agencyId
+ * PATCH /api/agency/update-agency-by-id/:agencyId
  * Private access
  *
  * @async
  * @param {import('express').Request} req
  * @param {import('express').Response} res
  */
-exports.updateTravelAgency = async (req, res) => {
+exports.updateAgencyById = async (req, res) => {
   const { agencyId } = req.params;
 
   if (!agencyId || !agencyId.match(/^[0-9a-fA-F]{24}$/)) {
@@ -424,14 +424,14 @@ exports.updateTravelAgency = async (req, res) => {
 
 /**
  * Delete Travel Agency by ID
- * DELETE /api/travel-agency/delete-agency/:agencyId
+ * DELETE /api/agency/delete-agency-by-id/:agencyId
  * Private access
  *
  * @async
  * @param {import('express').Request} req
  * @param {import('express').Response} res
  */
-exports.deleteAgency = async (req, res) => {
+exports.deleteAgencyById = async (req, res) => {
   const { agencyId } = req.params;
 
   if (!agencyId || !agencyId.match(/^[0-9a-fA-F]{24}$/)) {
@@ -526,7 +526,7 @@ exports.deleteAgency = async (req, res) => {
 
 /**
  * Logout Travel Agency
- * POST /api/travel-agency/logout
+ * POST /api/agency/logout
  * Private access
  *
  * @async

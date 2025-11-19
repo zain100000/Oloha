@@ -284,7 +284,7 @@ exports.getUserById = async (req, res) => {
  * @param {import('express').Response} res - Express response object
  * @returns {Promise<void>}
  */
-exports.updateUser = async (req, res) => {
+exports.updateUserById = async (req, res) => {
   let uploadedFileUrl = null;
   try {
     const { userId } = req.params;
@@ -375,7 +375,7 @@ exports.updateUser = async (req, res) => {
  * @param {import('express').Response} res
  */
 
-exports.deleteUser = async (req, res) => {
+exports.deleteUserById = async (req, res) => {
   const { userId } = req.params;
 
   if (!userId || !userId.match(/^[0-9a-fA-F]{24}$/)) {

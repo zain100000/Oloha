@@ -48,16 +48,16 @@ router.patch(
   "/update-agency-by-id/:agencyId",
   encryptedAuthMiddleware,
   cloudinaryUtility.upload,
-  travelAgencyController.updateTravelAgency
+  travelAgencyController.updateAgencyById
 );
 
 /**
  * @description Delete Travel Agency details by ID
  */
 router.delete(
-  "/delete-agency/:agencyId",
+  "/delete-agency-by-id/:agencyId",
   encryptedAuthMiddleware,
-  travelAgencyController.deleteAgency
+  travelAgencyController.deleteAgencyById
 );
 
 /**

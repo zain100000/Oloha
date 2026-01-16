@@ -90,4 +90,9 @@ router.get("/action/get-all-agencies", superAdminController.getAllAgencies);
  */
 router.get("/action/get-all-packages", superAdminController.getAllPackages);
 
+/**
+ * @description Retrieves all users.
+ */
+router.get("/action/get-all-users", superAdminController.getAllUsers);
+
 module.exports = router;

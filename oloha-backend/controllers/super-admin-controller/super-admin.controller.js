@@ -13,6 +13,7 @@
 const bcrypt = require("bcrypt");
 const SuperAdmin = require("../../models/super-admin-model/super-admin.model");
 const Agency = require("../../models/travel-agency-model/travel-agency.model");
+const User = require("../../models/user-model/user.model");
 const Package = require("../../models/package-model/Package.model");
 const {
   uploadToCloudinary,
@@ -492,6 +493,33 @@ exports.getAllPackages = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching packages:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Server Error", error: error.message });
+  }
+};
+
+/**
+ * Get all users
+ * GET /api/super-admin/action/get-all-users
+ * Public access
+ *
+ * @async
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>}
+ */
+
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("-__v -password");
+    res.status(200).json({
+      success: true,
+      message: "Users fetched successfully!",
+      allUsers: users,
+    });
+  } catch (error) {
+    console.error("Error fetching sellers:", error);
     res
       .status(500)
       .json({ success: false, message: "Server Error", error: error.message });
